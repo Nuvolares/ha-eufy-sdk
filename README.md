@@ -1,7 +1,13 @@
 # ha-eufy-sdk
 
 > **Fork of [mega-yfue/ha-eufy-sdk](https://github.com/mega-yfue/ha-eufy-sdk) (`dev` branch).**
-> Keeps every camera and optical view from `dev`, but restores the 0.4.0 availability rule for
+> All credit for this integration, and for the
+> [`ha-eufy-sdk-bridge`](https://github.com/mega-yfue/ha-eufy-sdk-bridge) it relies on, goes to
+> [mega-yfue](https://github.com/mega-yfue) and the upstream contributors. This fork only carries
+> one small availability change on top of their work and stays under their MIT license. Please
+> report anything not related to that change upstream.
+>
+> **What this fork changes:** it keeps every camera and optical view from `dev`, but restores the 0.4.0 availability rule for
 > sensors, locks, keypads and lights: they go offline only when eufy's `deviceStatus` says so, and
 > ignore the bridge's sticky `availability: unavailable` flag that knocked every HomeBase sensor
 > offline at once. Cameras/stations keep dev's logic, except a live stream / P2P session now beats
