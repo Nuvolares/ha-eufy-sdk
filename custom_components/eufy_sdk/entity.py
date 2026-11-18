@@ -279,19 +279,24 @@ def device_offline(record: dict | None, now_ms: float | None = None) -> bool:
     Prefers the SDK's honest liveness facts (forwarded by the bridge) over the
     ambiguous cloud `deviceStatus` param:
 
-    1. an explicit vendor availability observation, when seen, is authoritative;
-    2. an active live feed proves the device is reachable right now;
-    3. otherwise staleness — `lastSeenMs` older than this device class's window
-       (and classes that are silent by design never go offline this way);
+    0. devices that are silent by design (sensors, locks, keypads, lights — anything
+       that is not a camera or station) ignore the liveness facts entirely and use
+       only the legacy `deviceStatus` flag, as in 0.4.0. [fork] The bridge's sticky
+       `availability: unavailable` observation knocked every HomeBase sensor offline
+       at once and they never came back;
+    1. an active live feed / live P2P session proves the device is reachable right
+       now, and wins over a stale `unavailable` observation; [fork]
+    2. an explicit vendor availability observation, when seen, decides next;
+    3. otherwise staleness — `lastSeenMs` older than this device class's window;
     4. only when none of those facts are present (an older bridge) does the legacy
        `deviceStatus` flag still decide, so behaviour is unchanged until the bridge
        forwards the facts.
     """
     rec = record or {}
 
-    availability = rec.get("availability")
-    if availability in ("unavailable", "available"):
-        return availability == "unavailable"
+    window = _staleness_window_ms(rec)
+    if window is None:
+        return rec.get("state", {}).get("deviceStatus") is False
 
     # A live feed, or a standalone device's live P2P transport, proves reachability
     # right now — even while the device sends only keepalives and `lastSeenMs` stays
@@ -299,11 +304,12 @@ def device_offline(record: dict | None, now_ms: float | None = None) -> bool:
     if rec.get("streaming") or rec.get("p2pReachable"):
         return False
 
+    availability = rec.get("availability")
+    if availability in ("unavailable", "available"):
+        return availability == "unavailable"
+
     last_seen = rec.get("lastSeenMs")
     if isinstance(last_seen, (int, float)) and not isinstance(last_seen, bool):
-        window = _staleness_window_ms(rec)
-        if window is None:
-            return False
         now = time.time() * 1000 if now_ms is None else now_ms
         return (now - last_seen) > window
 

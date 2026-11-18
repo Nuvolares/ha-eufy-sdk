@@ -1,5 +1,16 @@
 # ha-eufy-sdk
 
+> **Fork of [mega-yfue/ha-eufy-sdk](https://github.com/mega-yfue/ha-eufy-sdk) (`dev` branch).**
+> Keeps every camera and optical view from `dev`, but restores the 0.4.0 availability rule for
+> sensors, locks, keypads and lights: they go offline only when eufy's `deviceStatus` says so, and
+> ignore the bridge's sticky `availability: unavailable` flag that knocked every HomeBase sensor
+> offline at once. Cameras/stations keep dev's logic, except a live stream / P2P session now beats
+> a stale `unavailable`. See `device_offline()` in `custom_components/eufy_sdk/entity.py`.
+>
+> Install in HACS as a custom repository: `https://github.com/Nuvolares/ha-eufy-sdk` (Integration).
+> Same `eufy_sdk` domain, so remove the upstream HACS entry first; existing entities keep their IDs.
+
+
 [![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5?logo=home-assistant&logoColor=white)](https://hacs.xyz)
 [![Validate](https://github.com/mega-yfue/ha-eufy-sdk/actions/workflows/validate.yml/badge.svg)](https://github.com/mega-yfue/ha-eufy-sdk/actions/workflows/validate.yml)
 [![Lint](https://github.com/mega-yfue/ha-eufy-sdk/actions/workflows/lint.yml/badge.svg)](https://github.com/mega-yfue/ha-eufy-sdk/actions/workflows/lint.yml)

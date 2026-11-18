@@ -66,20 +66,50 @@ class LivenessFactTests(unittest.TestCase):
 
     NOW = 1_700_000_000_000
 
-    def test_explicit_availability_is_authoritative(self):
+    def test_explicit_availability_is_authoritative_for_a_camera(self):
         # It overrides even a contradicting deviceStatus either way.
         self.assertTrue(
             device_offline(
-                {"availability": "unavailable", "state": {"deviceStatus": True}},
+                {
+                    "codec": "camera",
+                    "availability": "unavailable",
+                    "state": {"deviceStatus": True},
+                },
                 now_ms=self.NOW,
             )
         )
         self.assertFalse(
             device_offline(
-                {"availability": "available", "state": {"deviceStatus": False}},
+                {
+                    "codec": "camera",
+                    "availability": "available",
+                    "state": {"deviceStatus": False},
+                },
                 now_ms=self.NOW,
             )
         )
+
+    def test_a_sensor_ignores_the_availability_observation(self):
+        # [fork] A sticky `unavailable` from the bridge took every HomeBase sensor
+        # offline at once; sensors follow only deviceStatus, as in 0.4.0.
+        rec = {
+            "codec": "sensor",
+            "stationSn": "T8010",
+            "availability": "unavailable",
+            "state": {"deviceStatus": True},
+        }
+        self.assertFalse(device_offline(rec, now_ms=self.NOW))
+        rec["state"]["deviceStatus"] = False
+        self.assertTrue(device_offline(rec, now_ms=self.NOW))
+
+    def test_a_live_session_beats_a_stale_unavailable(self):
+        # [fork] A live P2P session proves reachability now.
+        rec = {
+            "codec": "camera",
+            "availability": "unavailable",
+            "p2pReachable": True,
+        }
+        self.assertFalse(device_offline(rec, now_ms=self.NOW))
 
     def test_an_active_stream_means_reachable(self):
         # #144: a standalone camera whose deviceStatus is false but is streaming now.
