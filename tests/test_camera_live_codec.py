@@ -1,4 +1,4 @@
-# ruff: noqa: ANN201, D100, D101, D102, INP001, PT009
+# ruff: noqa: ANN201, D101, D102, INP001, PT009
 """[fork] The live-codec option picks the bridge's H.264 twin where it applies."""
 
 import unittest
