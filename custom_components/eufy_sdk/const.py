@@ -28,6 +28,17 @@ DEFAULT_GO2RTC_RTSP_PORT = 8554
 CONF_LIVE_OUTPUT_RESOLUTION = "live_output_resolution"
 DEFAULT_LIVE_OUTPUT_RESOLUTION = "default"
 
+# [fork] Which live source a camera hands Home Assistant: its native stream, or the
+# bridge's on-demand H.264 twin (`<id><h264Suffix>`), which browsers without H.265
+# WebRTC can play. Used only when the bridge advertises `h264Suffix`, so an upstream
+# bridge keeps the native stream.
+CONF_LIVE_CODEC = "live_codec"
+LIVE_CODEC_NATIVE = "native"
+LIVE_CODEC_H264_BATTERY = "h264_battery"
+LIVE_CODEC_H264_ALL = "h264_all"
+LIVE_CODEC_OPTIONS = [LIVE_CODEC_NATIVE, LIVE_CODEC_H264_BATTERY, LIVE_CODEC_H264_ALL]
+DEFAULT_LIVE_CODEC = LIVE_CODEC_H264_BATTERY
+
 # Options: how often the bridge polls the cloud for device state (minutes).
 # Drives both the bridge's cloud poll (config.set) and how often HA reads it.
 CONF_POLL_INTERVAL = "poll_interval_minutes"

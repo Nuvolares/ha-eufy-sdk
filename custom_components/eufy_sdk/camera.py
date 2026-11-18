@@ -14,10 +14,14 @@ from .const import (
     ATTRIBUTION,
     CONF_GO2RTC_RTSP_PORT,
     CONF_HOST,
+    CONF_LIVE_CODEC,
     CONF_LIVE_OUTPUT_RESOLUTION,
     CONF_PORT,
     DEFAULT_GO2RTC_RTSP_PORT,
+    DEFAULT_LIVE_CODEC,
     DOMAIN,
+    LIVE_CODEC_H264_ALL,
+    LIVE_CODEC_H264_BATTERY,
 )
 from .entity import device_offline
 from .preload import async_check_preload, on_battery_power
@@ -53,6 +57,7 @@ async def async_setup_entry(
             rtsp_port,
             view=view,
             output_resolution=entry.options.get(CONF_LIVE_OUTPUT_RESOLUTION),
+            live_codec=entry.options.get(CONF_LIVE_CODEC, DEFAULT_LIVE_CODEC),
         )
         for sn, dev in coordinator.data.items()
         if dev.get("stream")
@@ -78,6 +83,7 @@ class EufySdkCamera(CoordinatorEntity["EufySdkDataUpdateCoordinator"], Camera):
         *,
         view: dict[str, Any] | None = None,
         output_resolution: str | None = None,
+        live_codec: str = DEFAULT_LIVE_CODEC,
     ) -> None:
         """Bind to a device serial + the bridge address."""
         CoordinatorEntity.__init__(self, coordinator)
@@ -101,6 +107,7 @@ class EufySdkCamera(CoordinatorEntity["EufySdkDataUpdateCoordinator"], Camera):
         )
         self._stream_id = source["id"] if source else sn
         self._snapshot_path = source["snapshot"] if source else None
+        self._live_codec = live_codec
         self._attr_unique_id = (
             f"{sn}_camera" if self._view == 0 else f"{sn}_camera_view_{self._view}"
         )
@@ -140,7 +147,25 @@ class EufySdkCamera(CoordinatorEntity["EufySdkDataUpdateCoordinator"], Camera):
 
     async def stream_source(self) -> str:
         """Return the go2rtc RTSP URL — HA's stream component + go2rtc do the work."""
-        return f"rtsp://{self._host}:{self._rtsp_port}/{self._stream_id}"
+        return f"rtsp://{self._host}:{self._rtsp_port}/{self.live_stream_id}"
+
+    @property
+    def live_stream_id(self) -> str:
+        """
+        The go2rtc stream this camera hands Home Assistant.
+
+        [fork] The bridge's H.264 twin when the live-codec option picks it for this
+        camera and the bridge advertises one (`h264Suffix`), else the native stream.
+        """
+        record = self.coordinator.data.get(self._sn) or {}
+        suffix = record.get("h264Suffix")
+        if not isinstance(suffix, str) or not suffix:
+            return self._stream_id
+        if self._live_codec == LIVE_CODEC_H264_ALL or (
+            self._live_codec == LIVE_CODEC_H264_BATTERY and on_battery_power(record)
+        ):
+            return f"{self._stream_id}{suffix}"
+        return self._stream_id
 
     async def async_create_stream(self) -> Stream | None:
         """
