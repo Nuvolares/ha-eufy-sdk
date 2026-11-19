@@ -39,6 +39,11 @@ LIVE_CODEC_H264_ALL = "h264_all"
 LIVE_CODEC_OPTIONS = [LIVE_CODEC_NATIVE, LIVE_CODEC_H264_BATTERY, LIVE_CODEC_H264_ALL]
 DEFAULT_LIVE_CODEC = LIVE_CODEC_H264_BATTERY
 
+# [fork] Every N minutes, wake each battery camera for one fresh still (0 = off).
+# Meant for solar cameras, whose tile otherwise shows the last event for hours.
+CONF_STILL_REFRESH = "still_refresh_minutes"
+DEFAULT_STILL_REFRESH_MIN = 0
+
 # Options: how often the bridge polls the cloud for device state (minutes).
 # Drives both the bridge's cloud poll (config.set) and how often HA reads it.
 CONF_POLL_INTERVAL = "poll_interval_minutes"

@@ -38,6 +38,7 @@ from .const import (
 from .coordinator import EufySdkDataUpdateCoordinator
 from .data import EufySdkData
 from .property_sync import apply_property_changed_event
+from .still_refresh import async_setup_still_refresh
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -268,6 +269,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EufySdkConfigEntry) -> b
     entry.runtime_data.properties = properties
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    async_setup_still_refresh(hass, entry)
     return True
 
 

@@ -23,12 +23,14 @@ from .const import (
     CONF_POLL_INTERVAL,
     CONF_PORT,
     CONF_SOC_REFRESH,
+    CONF_STILL_REFRESH,
     DEFAULT_GO2RTC_RTSP_PORT,
     DEFAULT_LIVE_CODEC,
     DEFAULT_LIVE_OUTPUT_RESOLUTION,
     DEFAULT_POLL_INTERVAL_MIN,
     DEFAULT_PORT,
     DEFAULT_SOC_REFRESH_SEC,
+    DEFAULT_STILL_REFRESH_MIN,
     DOMAIN,
     LIVE_CODEC_OPTIONS,
     LOGGER,
@@ -476,6 +478,9 @@ class EufySdkOptionsFlow(config_entries.OptionsFlowWithReload):
             CONF_LIVE_OUTPUT_RESOLUTION, DEFAULT_LIVE_OUTPUT_RESOLUTION
         )
         live_codec = self.config_entry.options.get(CONF_LIVE_CODEC, DEFAULT_LIVE_CODEC)
+        still_refresh = self.config_entry.options.get(
+            CONF_STILL_REFRESH, DEFAULT_STILL_REFRESH_MIN
+        )
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
@@ -495,6 +500,17 @@ class EufySdkOptionsFlow(config_entries.OptionsFlowWithReload):
                             options=LIVE_CODEC_OPTIONS,
                             translation_key="live_codec",
                         )
+                    ),
+                    vol.Required(
+                        CONF_STILL_REFRESH, default=still_refresh
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=0,
+                            max=1440,
+                            step=1,
+                            unit_of_measurement="min",
+                            mode=selector.NumberSelectorMode.BOX,
+                        ),
                     ),
                     vol.Required(
                         CONF_POLL_INTERVAL, default=current_poll_interval
