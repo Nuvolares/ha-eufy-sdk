@@ -54,24 +54,47 @@ def refresh_targets(devices: dict[str, dict[str, Any]] | None) -> list[str]:
     ]
 
 
+def refresh_requests(
+    devices: dict[str, dict[str, Any]] | None,
+) -> list[tuple[str, str | None]]:
+    """
+    One (key, snapshot path) per lens of each target camera.
+
+    A camera with a second lens (the PTZ lens of an S4) lists it in `views`; each
+    lens has its own still, so each gets its own refresh. The main lens uses the
+    default path (None).
+    """
+    requests: list[tuple[str, str | None]] = []
+    for sn in refresh_targets(devices):
+        requests.append((sn, None))
+        requests.extend(
+            (view["id"], view["snapshot"])
+            for view in (devices or {})[sn].get("views") or []
+            if view.get("view") and view.get("id") and view.get("snapshot")
+        )
+    return requests
+
+
 async def refresh_stills(
     session: aiohttp.ClientSession,
     host: str,
     port: int,
     devices: dict[str, dict[str, Any]] | None,
 ) -> dict[str, bool]:
-    """Ask the bridge for one live still per target camera, one after another."""
+    """Ask the bridge for one live still per target lens, one after another."""
     results: dict[str, bool] = {}
+    # Two bridge tries of a ~20 s warm-up each, plus the burst itself.
     timeout = aiohttp.ClientTimeout(total=REFRESH_TIMEOUT_S)
-    for sn in refresh_targets(devices):
-        url = snapshot_url(host, port, sn, SNAPSHOT_POLICY_LIVE)
+    for key, path in refresh_requests(devices):
+        sn = key.split("_view_", 1)[0]
+        url = snapshot_url(host, port, sn, SNAPSHOT_POLICY_LIVE, snapshot_path=path)
         try:
             async with session.get(url, timeout=timeout) as resp:
                 await resp.read()
-                results[sn] = resp.status == HTTPStatus.OK
+                results[key] = resp.status == HTTPStatus.OK
         except (TimeoutError, aiohttp.ClientError, OSError) as err:
-            LOGGER.debug("still refresh for %s failed: %s", sn, err)
-            results[sn] = False
+            LOGGER.debug("still refresh for %s failed: %s", key, err)
+            results[key] = False
     return results
 
 

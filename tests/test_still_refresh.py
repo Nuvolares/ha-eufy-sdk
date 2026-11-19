@@ -81,6 +81,27 @@ class StillRefreshTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(session.peak, 1)
         self.assertEqual(results, {SOLAR: True, "T8162P0000000003": True})
 
+    async def test_a_second_lens_gets_its_own_live_still(self):
+        views = [
+            {"view": 0, "id": SOLAR, "snapshot": f"/snapshot/{SOLAR}"},
+            {
+                "view": 1,
+                "id": f"{SOLAR}_view_1",
+                "snapshot": f"/snapshot/{SOLAR}?view=1",
+            },
+        ]
+        devices = {SOLAR: {**DEVICES[SOLAR], "views": views}}
+        session = _Session()
+        results = await refresh_stills(session, "h", 1, devices)
+        self.assertEqual(
+            session.urls,
+            [
+                f"http://h:1/snapshot/{SOLAR}?mode=live",
+                f"http://h:1/snapshot/{SOLAR}?view=1&mode=live",
+            ],
+        )
+        self.assertEqual(results, {SOLAR: True, f"{SOLAR}_view_1": True})
+
     async def test_a_failed_still_is_reported_not_raised(self):
         results = await refresh_stills(_Session(502), "h", 1, DEVICES)
         self.assertEqual(results, {SOLAR: False})
