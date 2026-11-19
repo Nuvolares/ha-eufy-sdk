@@ -3,15 +3,22 @@
 > **Fork of [mega-yfue/ha-eufy-sdk](https://github.com/mega-yfue/ha-eufy-sdk) (`dev` branch).**
 > All credit for this integration, and for the
 > [`ha-eufy-sdk-bridge`](https://github.com/mega-yfue/ha-eufy-sdk-bridge) it relies on, goes to
-> [mega-yfue](https://github.com/mega-yfue) and the upstream contributors. This fork only carries
-> one small availability change on top of their work and stays under their MIT license. Please
-> report anything not related to that change upstream.
+> [mega-yfue](https://github.com/mega-yfue) and the upstream contributors. This fork carries a few
+> changes on top of their work and stays under their MIT license. Please report anything not
+> related to them upstream.
 >
 > **What this fork changes:** it keeps every camera and optical view from `dev`, but restores the 0.4.0 availability rule for
 > sensors, locks, keypads and lights: they go offline only when eufy's `deviceStatus` says so, and
 > ignore the bridge's sticky `availability: unavailable` flag that knocked every HomeBase sensor
 > offline at once. Cameras/stations keep dev's logic, except a live stream / P2P session now beats
 > a stale `unavailable`. See `device_offline()` in `custom_components/eufy_sdk/entity.py`.
+>
+> It also adds a **Live view codec** option (default: H.264 for battery cameras), which plays H.265
+> cameras such as the eufyCam S3 Pro in browsers through the H.264 copy that the
+> [Nuvolares bridge add-on](https://github.com/Nuvolares/ha-eufy-sdk-addon) provides.
+>
+> **Versioning:** this fork has its own version numbers, starting at 1.0.0 (based on upstream `dev`
+> at 0.7.2). They don't follow upstream's.
 >
 > Install in HACS as a custom repository: `https://github.com/Nuvolares/ha-eufy-sdk` (Integration).
 > Same `eufy_sdk` domain, so remove the upstream HACS entry first; existing entities keep their IDs.
