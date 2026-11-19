@@ -101,7 +101,7 @@ def refresh_requests(devices: dict[str, dict[str, Any]] | None) -> list[Request]
 def motion_requests(
     data: dict[str, Any], devices: dict[str, dict[str, Any]] | None
 ) -> list[Request]:
-    """The still requests a bridge event asks for: none unless it is motion."""
+    """List the still requests a bridge event asks for: none unless it is motion."""
     sn = data.get("deviceSn")
     if data.get("event") not in MOTION_EVENTS or not isinstance(sn, str):
         return []
