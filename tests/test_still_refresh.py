@@ -1,4 +1,4 @@
-# ruff: noqa: ANN201, D101, D102, D105, D107, INP001, PT009
+# ruff: noqa: ANN201, D101, D102, INP001, PT009
 """[fork] The timed still refresh wakes only reachable, idle battery cameras."""
 
 import asyncio
