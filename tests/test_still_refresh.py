@@ -1,11 +1,20 @@
 # ruff: noqa: ANN201, D101, D102, INP001, PT009
-"""[fork] The timed still refresh wakes only reachable, idle battery cameras."""
+"""[fork] Fresh stills wake only reachable, idle battery cameras, one lens at a time."""
 
 import asyncio
 import unittest
 from typing import Any, Self
+from unittest.mock import AsyncMock, patch
 
-from custom_components.eufy_sdk.still_refresh import refresh_stills, refresh_targets
+from custom_components.eufy_sdk.still_refresh import (
+    LENS_GAP_S,
+    Cooldown,
+    motion_requests,
+    refresh_stills,
+    refresh_targets,
+)
+
+SLEEP = "custom_components.eufy_sdk.still_refresh.asyncio.sleep"
 
 SOLAR = "T8172P0000000001"
 WIRED = "T8E00P0000000001"
@@ -92,7 +101,8 @@ class StillRefreshTests(unittest.IsolatedAsyncioTestCase):
         ]
         devices = {SOLAR: {**DEVICES[SOLAR], "views": views}}
         session = _Session()
-        results = await refresh_stills(session, "h", 1, devices)
+        with patch(SLEEP, new=AsyncMock()) as sleep:
+            results = await refresh_stills(session, "h", 1, devices)
         self.assertEqual(
             session.urls,
             [
@@ -101,6 +111,32 @@ class StillRefreshTests(unittest.IsolatedAsyncioTestCase):
             ],
         )
         self.assertEqual(results, {SOLAR: True, f"{SOLAR}_view_1": True})
+        # The second lens waits for the first lens's call to close: no combined image.
+        gaps = [c for c in sleep.await_args_list if c.args == (LENS_GAP_S,)]
+        self.assertEqual(len(gaps), 1)
+
+    def test_motion_asks_for_every_lens_of_that_battery_camera_only(self):
+        views = [{"view": 1, "id": f"{SOLAR}_view_1", "snapshot": "/s?view=1"}]
+        devices = {**DEVICES, SOLAR: {**DEVICES[SOLAR], "views": views}}
+        self.assertEqual(
+            motion_requests({"event": "personDetected", "deviceSn": SOLAR}, devices),
+            [(SOLAR, SOLAR, None), (f"{SOLAR}_view_1", SOLAR, "/s?view=1")],
+        )
+        for data in (
+            {"event": "soundDetected", "deviceSn": SOLAR},  # not movement
+            {"event": "motion", "deviceSn": WIRED},  # mains: its tile is live
+            {"event": "motion", "deviceSn": WATCHED},  # already streaming
+            {"event": "motion", "deviceSn": "unknown"},
+            {"event": "motion"},
+        ):
+            self.assertEqual(motion_requests(data, devices), [], data)
+
+    def test_cooldown_lets_one_motion_still_through_per_minute(self):
+        gate = Cooldown(60)
+        self.assertTrue(gate.allow(SOLAR, 100.0))
+        self.assertFalse(gate.allow(SOLAR, 159.0))
+        self.assertTrue(gate.allow(WATCHED, 159.0))
+        self.assertTrue(gate.allow(SOLAR, 160.0))
 
     async def test_a_failed_still_is_reported_not_raised(self):
         results = await refresh_stills(_Session(502), "h", 1, DEVICES)

@@ -44,6 +44,11 @@ DEFAULT_LIVE_CODEC = LIVE_CODEC_H264_BATTERY
 CONF_STILL_REFRESH = "still_refresh_minutes"
 DEFAULT_STILL_REFRESH_MIN = 0
 
+# [fork] Take one live still from a battery camera when it detects motion (it is
+# awake for the event anyway), for accounts whose motion pushes carry no thumbnail.
+CONF_MOTION_STILL = "motion_still"
+DEFAULT_MOTION_STILL = True
+
 # Options: how often the bridge polls the cloud for device state (minutes).
 # Drives both the bridge's cloud poll (config.set) and how often HA reads it.
 CONF_POLL_INTERVAL = "poll_interval_minutes"
