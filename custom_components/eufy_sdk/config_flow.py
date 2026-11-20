@@ -20,7 +20,6 @@ from .const import (
     CONF_HOST,
     CONF_LIVE_CODEC,
     CONF_LIVE_OUTPUT_RESOLUTION,
-    CONF_MOTION_STILL,
     CONF_POLL_INTERVAL,
     CONF_PORT,
     CONF_SOC_REFRESH,
@@ -28,7 +27,6 @@ from .const import (
     DEFAULT_GO2RTC_RTSP_PORT,
     DEFAULT_LIVE_CODEC,
     DEFAULT_LIVE_OUTPUT_RESOLUTION,
-    DEFAULT_MOTION_STILL,
     DEFAULT_POLL_INTERVAL_MIN,
     DEFAULT_PORT,
     DEFAULT_SOC_REFRESH_SEC,
@@ -483,9 +481,6 @@ class EufySdkOptionsFlow(config_entries.OptionsFlowWithReload):
         still_refresh = self.config_entry.options.get(
             CONF_STILL_REFRESH, DEFAULT_STILL_REFRESH_MIN
         )
-        motion_still = self.config_entry.options.get(
-            CONF_MOTION_STILL, DEFAULT_MOTION_STILL
-        )
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
@@ -517,9 +512,6 @@ class EufySdkOptionsFlow(config_entries.OptionsFlowWithReload):
                             mode=selector.NumberSelectorMode.BOX,
                         ),
                     ),
-                    vol.Required(
-                        CONF_MOTION_STILL, default=motion_still
-                    ): selector.BooleanSelector(),
                     vol.Required(
                         CONF_POLL_INTERVAL, default=current_poll_interval
                     ): selector.NumberSelector(

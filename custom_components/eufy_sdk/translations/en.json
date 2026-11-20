@@ -217,15 +217,13 @@
           "soc_refresh_seconds": "Solarbank SOC-limit refresh (seconds)",
           "live_output_resolution": "Live video output resolution",
           "live_codec": "Live view codec",
-          "still_refresh_minutes": "Refresh battery camera stills (minutes)",
-          "motion_still": "Fresh still on motion"
+          "still_refresh_minutes": "Refresh battery camera stills (minutes)"
         },
         "data_description": {
           "soc_refresh_seconds": "How often HA re-reads a Solarbank's discharge/charge limits from the cloud, so an app-side change reflects on the sliders. Only applies if you have a Solarbank.",
           "live_output_resolution": "Use Full HD on media routes that advertise it. Other cameras keep their default output. This does not change recording quality or the eufy app setting.",
           "live_codec": "Battery cameras play only over WebRTC, and most desktop browsers can't play H.265 there. H.264 uses the bridge's on-demand transcoded copy (costs CPU while watched). Needs a bridge that offers it; otherwise the native stream is used.",
-          "still_refresh_minutes": "Every this many minutes, wake each battery camera briefly for one fresh still, one camera at a time, so its picture stays current. Each refresh costs some battery; meant for solar cameras. 0 = off (the picture changes only on events or after a live view).",
-          "motion_still": "When a battery camera detects motion (or a person, vehicle, ...), take one live still from it, at most once a minute, so its picture shows what is happening. It is awake for the event anyway. Useful when eufy's motion notifications carry no picture."
+          "still_refresh_minutes": "Every this many minutes, wake each battery camera briefly for one fresh still, one camera at a time, so its picture stays current. Each refresh costs some battery; meant for solar cameras. 0 = off (the picture changes only on events or after a live view)."
         }
       }
     }

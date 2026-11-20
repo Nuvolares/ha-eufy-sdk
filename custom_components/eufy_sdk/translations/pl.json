@@ -217,15 +217,13 @@
           "soc_refresh_seconds": "Odświeżanie limitów SOC Solarbanka (sekundy)",
           "live_output_resolution": "Rozdzielczość obrazu na żywo",
           "live_codec": "Kodek podglądu na żywo",
-          "still_refresh_minutes": "Odświeżanie zdjęć kamer na baterie (minuty)",
-          "motion_still": "Świeże zdjęcie przy ruchu"
+          "still_refresh_minutes": "Odświeżanie zdjęć kamer na baterie (minuty)"
         },
         "data_description": {
           "soc_refresh_seconds": "Jak często HA ponownie odczytuje z chmury limity rozładowania/ładowania Solarbanka, aby zmiana wprowadzona w aplikacji była widoczna na suwakach. Dotyczy tylko posiadaczy Solarbanka.",
           "live_output_resolution": "Używaj Full HD tam, gdzie trasa mediów to oferuje. Pozostałe kamery zachowują domyślne wyjście. Nie zmienia to jakości nagrywania ani ustawienia w aplikacji eufy.",
           "live_codec": "Kamery na baterie działają tylko przez WebRTC, a większość przeglądarek na komputerze nie odtwarza tam H.265. H.264 korzysta z kopii transkodowanej na żądanie przez mostek (obciąża procesor podczas oglądania). Wymaga mostka, który ją udostępnia; w przeciwnym razie używany jest strumień natywny.",
-          "still_refresh_minutes": "Co tyle minut każda kamera na baterie jest na chwilę wybudzana po jedno świeże zdjęcie, po jednej kamerze naraz, aby jej obraz był aktualny. Każde odświeżenie zużywa trochę baterii; przeznaczone dla kamer solarnych. 0 = wyłączone (obraz zmienia się tylko przy zdarzeniach lub po podglądzie na żywo).",
-          "motion_still": "Gdy kamera na baterie wykryje ruch (osobę, pojazd, ...), pobierz z niej jedno zdjęcie na żywo, najwyżej raz na minutę, aby jej obraz pokazywał, co się dzieje. Kamera i tak jest wtedy wybudzona. Przydatne, gdy powiadomienia eufy o ruchu nie zawierają zdjęcia."
+          "still_refresh_minutes": "Co tyle minut każda kamera na baterie jest na chwilę wybudzana po jedno świeże zdjęcie, po jednej kamerze naraz, aby jej obraz był aktualny. Każde odświeżenie zużywa trochę baterii; przeznaczone dla kamer solarnych. 0 = wyłączone (obraz zmienia się tylko przy zdarzeniach lub po podglądzie na żywo)."
         }
       }
     }
